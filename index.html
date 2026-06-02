@@ -3,522 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RelationshipDNA — Discover Your Emotional Blueprint</title>
+<title>RelationshipDNA | Discover Your Emotional Blueprint</title>
+<meta name="description" content="Take the 3-minute RelationshipDNA quiz to uncover the hidden emotional patterns and subconscious sabotages driving your love life.">
+<meta name="keywords" content="relationship test, personality test, attachment style, love habits, emotional blueprint">
+<meta property="og:title" content="RelationshipDNA | Discover Your Emotional Blueprint">
+<meta property="og:description" content="Uncover the hidden emotional patterns driving your love life in just 3 minutes.">
+<meta property="og:image" content="https://yourdomain.com/og-image.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RelationshipDNA | Discover Your Emotional Blueprint">
+<meta name="twitter:description" content="Uncover the hidden emotional patterns driving your love life in just 3 minutes.">
+<meta name="twitter:image" content="https://yourdomain.com/og-image.jpg">
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Paddle.js -->
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
+/* ============================================================
+   RESET & VARIABLES
+============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #0a0608;
-  --surface: #130d10;
-  --card: #1a1118;
+  --bg: #0a0608; --surface: #130d10; --card: #1a1118;
   --border: rgba(255,255,255,0.07);
-  --rose: #e8a0b0;
-  --rose-deep: #c4607a;
-  --gold: #d4a853;
-  --text: #f0e8ea;
-  --muted: #8a7a7e;
-  --glow: 0 0 40px rgba(232,160,176,0.15);
+  --rose: #e8a0b0; --rose-deep: #c4607a; --gold: #d4a853;
+  --text: #f0e8ea; --muted: #8a7a7e;
 }
-
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg); color: var(--text);
   font-family: 'DM Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+  min-height: 100vh; overflow-x: hidden;
 }
-
-/* BACKGROUND */
 body::before {
-  content: '';
-  position: fixed; inset: 0;
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
     radial-gradient(ellipse at 15% 20%, rgba(196,96,122,0.12) 0%, transparent 45%),
-    radial-gradient(ellipse at 85% 80%, rgba(212,168,83,0.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 50%, rgba(232,160,176,0.04) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
+    radial-gradient(ellipse at 85% 80%, rgba(212,168,83,0.08) 0%, transparent 45%);
 }
 
-.container { max-width: 700px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-/* ========== LANDING ========== */
-#landing {
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 60px 24px;
-  animation: fadeUp 1s ease;
+/* ============================================================
+   NAVBAR
+============================================================ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,6,8,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-
-.brand {
+.nav-logo {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700;
+  background: linear-gradient(135deg, var(--rose), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; cursor: pointer;
+}
+.nav-links { display: flex; align-items: center; gap: 20px; }
+.nav-link {
+  font-size: 13px; color: var(--muted); letter-spacing: 1px;
+  cursor: pointer; transition: color 0.3s; background: none; border: none;
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px; font-weight: 500;
-  letter-spacing: 5px; text-transform: uppercase;
-  color: var(--rose); opacity: 0.7;
-  margin-bottom: 40px;
+}
+.nav-link:hover { color: var(--rose); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
+  color: #fff; border: none; padding: 8px 20px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  letter-spacing: 1px; cursor: pointer; border-radius: 2px; transition: all 0.3s;
+}
+.nav-user {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--muted);
+}
+.nav-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #fff;
 }
 
+/* ============================================================
+   PAGES
+============================================================ */
+.page { display: none; padding-top: 60px; position: relative; z-index: 1; }
+.page.active { display: block; animation: fadeUp 0.6s ease; }
+#landing.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+#email-gate.active { display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+/* ============================================================
+   LANDING
+============================================================ */
+#landing { text-align: center; padding: 80px 24px 60px; }
+.brand { font-size: 11px; font-weight: 500; letter-spacing: 5px; text-transform: uppercase; color: var(--rose); opacity: 0.7; margin-bottom: 32px; }
 .landing-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(38px, 8vw, 72px);
-  font-weight: 900;
-  line-height: 1.05;
-  margin-bottom: 12px;
+  font-family: 'Playfair Display', serif; font-size: clamp(36px,7vw,64px);
+  font-weight: 900; line-height: 1.05; margin-bottom: 12px;
   background: linear-gradient(135deg, #fff 0%, var(--rose) 60%, var(--gold) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-
-.landing-subtitle {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: clamp(16px, 3vw, 22px);
-  color: var(--muted);
-  margin-bottom: 48px;
-  font-weight: 400;
-}
-
-.landing-desc {
-  font-size: 16px; color: var(--muted);
-  line-height: 1.7; max-width: 480px;
-  margin: 0 auto 56px;
-  font-weight: 300;
-}
-
+.landing-subtitle { font-family:'Playfair Display',serif; font-style:italic; font-size:clamp(15px,2.5vw,20px); color:var(--muted); margin-bottom:40px; }
+.landing-desc { font-size:16px; color:var(--muted); line-height:1.7; max-width:480px; margin:0 auto 48px; font-weight:300; }
+.dna-dots { display:flex; gap:6px; justify-content:center; margin-bottom:40px; }
+.dna-dot { width:8px; height:8px; border-radius:50%; background:var(--rose); opacity:0.3; animation:pulse 2s ease-in-out infinite; }
+.dna-dot:nth-child(2){animation-delay:.2s;background:var(--gold)}
+.dna-dot:nth-child(3){animation-delay:.4s}
+.dna-dot:nth-child(4){animation-delay:.6s;background:var(--gold)}
+.dna-dot:nth-child(5){animation-delay:.8s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
 .cta-main {
-  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
-  color: #fff; border: none;
-  padding: 20px 56px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px; font-weight: 500;
-  letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 8px 32px rgba(196,96,122,0.3);
+  background:linear-gradient(135deg,var(--rose-deep),var(--gold));
+  color:#fff; border:none; padding:20px 56px;
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+  letter-spacing:2px; text-transform:uppercase; cursor:pointer; border-radius:2px;
+  transition:all 0.4s; box-shadow:0 8px 32px rgba(196,96,122,0.3);
 }
-.cta-main:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(196,96,122,0.4); }
+.cta-main:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(196,96,122,0.4); }
+.landing-stats { display:flex; gap:32px; justify-content:center; margin-top:56px; padding-top:40px; border-top:1px solid var(--border); flex-wrap:wrap; }
+.stat-item { text-align:center; }
+.stat-num { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--rose); display:block; }
+.stat-label { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+.testimonials { max-width:700px; margin:60px auto 0; padding:0 24px; }
+.test-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text); text-align:center; margin-bottom:32px; }
+.test-card { background:var(--card); border:1px solid var(--border); padding:24px; border-radius:2px; margin-bottom:16px; }
+.test-stars { color:var(--gold); font-size:13px; margin-bottom:10px; }
+.test-text { font-size:15px; color:var(--muted); line-height:1.7; font-weight:300; margin-bottom:14px; font-style:italic; }
+.test-author { display:flex; align-items:center; gap:10px; }
+.test-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--rose-deep),var(--gold)); display:flex; align-items:center; justify-content:center; font-size:14px; }
+.test-name { font-size:13px; color:var(--text); font-weight:500; }
+.test-type { font-size:11px; color:var(--rose); letter-spacing:1px; }
 
-.landing-meta {
-  display: flex; gap: 32px; justify-content: center;
-  margin-top: 56px; padding-top: 40px;
-  border-top: 1px solid var(--border);
-}
-.meta-item { text-align: center; }
-.meta-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px; font-weight: 700; color: var(--rose);
-  display: block;
-}
-.meta-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-
-.dna-visual {
-  display: flex; gap: 6px; justify-content: center;
-  margin-bottom: 48px;
-}
-.dna-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--rose); opacity: 0.3;
-  animation: pulse 2s ease-in-out infinite;
-}
-.dna-dot:nth-child(2) { animation-delay: 0.2s; background: var(--gold); }
-.dna-dot:nth-child(3) { animation-delay: 0.4s; }
-.dna-dot:nth-child(4) { animation-delay: 0.6s; background: var(--gold); }
-.dna-dot:nth-child(5) { animation-delay: 0.8s; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.4); }
-}
-
-/* ========== QUIZ ========== */
-#quiz {
-  display: none; min-height: 100vh;
-  padding: 48px 24px; animation: fadeUp 0.6s ease;
-}
-
-.quiz-header {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 48px;
-  max-width: 700px; margin-left: auto; margin-right: auto;
-}
-.quiz-brand {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 700;
-  background: linear-gradient(135deg, var(--rose), var(--gold));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.quiz-counter { font-size: 13px; color: var(--muted); letter-spacing: 1px; }
-
-.progress-wrap { max-width: 700px; margin: 0 auto 48px; }
-.progress-track {
-  height: 2px; background: var(--border); border-radius: 1px; overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--rose-deep), var(--gold));
-  border-radius: 1px;
-  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-}
-.progress-label {
-  display: flex; justify-content: space-between;
-  margin-top: 10px;
-  font-size: 11px; color: var(--muted); letter-spacing: 1px;
-}
-
-.question-wrap { max-width: 700px; margin: 0 auto; }
-
-.q-number {
-  font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-  color: var(--rose); opacity: 0.7; margin-bottom: 20px;
-  font-weight: 500;
-}
-
-.q-text {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(20px, 3.5vw, 30px);
-  font-weight: 700; line-height: 1.3;
-  color: #fff; margin-bottom: 40px;
-}
-
-.options { display: flex; flex-direction: column; gap: 14px; }
-
+/* ============================================================
+   QUIZ
+============================================================ */
+#quiz { padding:80px 24px 40px; }
+.quiz-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; max-width:700px; margin-left:auto; margin-right:auto; }
+.quiz-brand { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; background:linear-gradient(135deg,var(--rose),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.quiz-counter { font-size:13px; color:var(--muted); letter-spacing:1px; }
+.progress-wrap { max-width:700px; margin:0 auto 40px; }
+.progress-track { height:2px; background:var(--border); border-radius:1px; overflow:hidden; }
+.progress-bar { height:100%; background:linear-gradient(90deg,var(--rose-deep),var(--gold)); border-radius:1px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
+.progress-label { display:flex; justify-content:space-between; margin-top:10px; font-size:11px; color:var(--muted); letter-spacing:1px; }
+.question-wrap { max-width:700px; margin:0 auto; }
+.q-number { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--rose); opacity:0.7; margin-bottom:20px; font-weight:500; }
+.q-text { font-family:'Playfair Display',serif; font-size:clamp(20px,3.5vw,28px); font-weight:700; line-height:1.3; color:#fff; margin-bottom:36px; }
+.options { display:flex; flex-direction:column; gap:12px; }
 .option {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 20px 28px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px; font-weight: 400;
-  color: var(--muted);
-  text-align: left;
-  transition: all 0.3s;
-  border-radius: 2px;
-  position: relative; overflow: hidden;
-  display: flex; align-items: center; gap: 16px;
+  background:var(--card); border:1px solid var(--border); padding:18px 24px;
+  cursor:pointer; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:400;
+  color:var(--muted); text-align:left; transition:all 0.3s; border-radius:2px;
+  position:relative; overflow:hidden; display:flex; align-items:center; gap:16px;
 }
+.option-letter { width:28px; height:28px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; letter-spacing:1px; color:var(--muted); flex-shrink:0; transition:all 0.3s; }
+.option::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:linear-gradient(var(--rose-deep),var(--gold)); opacity:0; transition:opacity 0.3s; }
+.option:hover { border-color:rgba(232,160,176,0.3); background:rgba(232,160,176,0.05); color:var(--text); }
+.option:hover::before { opacity:1; }
+.option:hover .option-letter { border-color:var(--rose); color:var(--rose); }
+.option.selected { border-color:var(--rose-deep); background:rgba(196,96,122,0.08); color:var(--text); }
+.option.selected::before { opacity:1; }
+.option.selected .option-letter { background:linear-gradient(135deg,var(--rose-deep),var(--gold)); border-color:transparent; color:#fff; }
 
-.option-letter {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
-  color: var(--muted); flex-shrink: 0;
-  transition: all 0.3s;
+/* ============================================================
+   EMAIL GATE
+============================================================ */
+#email-gate { padding:80px 24px; }
+.gate-card { max-width:520px; width:100%; text-align:center; padding:56px 40px; background:var(--surface); border:1px solid var(--border); border-radius:4px; margin:0 auto; }
+.gate-icon { font-size:48px; margin-bottom:24px; }
+.gate-title { font-family:'Playfair Display',serif; font-size:clamp(24px,4vw,34px); font-weight:900; color:#fff; margin-bottom:12px; line-height:1.2; }
+.gate-sub { font-size:16px; color:var(--muted); margin-bottom:40px; font-weight:300; line-height:1.6; }
+.google-btn {
+  width:100%; background:#fff; border:1px solid rgba(255,255,255,0.2);
+  padding:14px 20px; border-radius:4px; margin-bottom:16px;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+  color:#1a1a1a; cursor:pointer; transition:all 0.3s;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
 }
-
-.option::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 2px;
-  background: linear-gradient(var(--rose-deep), var(--gold));
-  opacity: 0; transition: opacity 0.3s;
-}
-
-.option:hover {
-  border-color: rgba(232,160,176,0.3);
-  background: rgba(232,160,176,0.05);
-  color: var(--text);
-}
-.option:hover::before { opacity: 1; }
-.option:hover .option-letter { border-color: var(--rose); color: var(--rose); }
-
-.option.selected {
-  border-color: var(--rose-deep);
-  background: rgba(196,96,122,0.08);
-  color: var(--text);
-}
-.option.selected::before { opacity: 1; }
-.option.selected .option-letter {
-  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
-  border-color: transparent; color: #fff;
-}
-
-/* ========== EMAIL GATE ========== */
-#email-gate {
-  display: none; min-height: 100vh;
-  display: none; align-items: center; justify-content: center;
-  padding: 48px 24px; animation: fadeUp 0.6s ease;
-}
-
-.gate-card {
-  max-width: 520px; width: 100%; text-align: center;
-  padding: 56px 40px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-
-.gate-icon { font-size: 48px; margin-bottom: 24px; }
-
-.gate-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 900; color: #fff;
-  margin-bottom: 12px; line-height: 1.2;
-}
-
-.gate-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; font-weight: 300; line-height: 1.6; }
-
+.google-btn:hover { background:#f5f5f5; transform:translateY(-1px); }
+.gate-divider { display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--muted); font-size:13px; }
+.gate-divider::before, .gate-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 .email-input {
-  width: 100%; background: var(--card);
-  border: 1px solid var(--border);
-  padding: 16px 20px; color: var(--text);
-  font-family: 'DM Sans', sans-serif; font-size: 16px;
-  border-radius: 2px; margin-bottom: 14px;
-  transition: border-color 0.3s; outline: none;
+  width:100%; background:var(--card); border:1px solid var(--border);
+  padding:16px 20px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px;
+  border-radius:2px; margin-bottom:14px; transition:border-color 0.3s; outline:none;
 }
-.email-input:focus { border-color: var(--rose); }
-.email-input::placeholder { color: var(--muted); }
-
+.email-input:focus { border-color:var(--rose); }
+.email-input::placeholder { color:var(--muted); }
 .gate-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
-  color: #fff; border: none; padding: 18px;
-  font-family: 'DM Sans', sans-serif; font-size: 15px;
-  font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
-  cursor: pointer; border-radius: 2px; transition: all 0.3s;
+  width:100%; background:linear-gradient(135deg,var(--rose-deep),var(--gold));
+  color:#fff; border:none; padding:18px; font-family:'DM Sans',sans-serif;
+  font-size:15px; font-weight:500; letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; border-radius:2px; transition:all 0.3s;
 }
-.gate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.gate-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.gate-privacy { font-size:12px; color:var(--muted); margin-top:16px; }
+.gate-error { font-size:13px; color:#ff6b6b; margin-top:8px; display:none; }
 
-.gate-privacy { font-size: 12px; color: var(--muted); margin-top: 16px; }
+/* ============================================================
+   RESULT
+============================================================ */
+#result { padding:80px 24px 40px; }
+.result-wrap { max-width:700px; margin:0 auto; }
+.result-header { text-align:center; margin-bottom:48px; }
+.result-tag { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--rose); opacity:0.7; margin-bottom:20px; font-weight:500; }
+.result-emoji { font-size:64px; margin-bottom:20px; display:block; }
+.result-type-label { font-size:12px; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.result-name { font-family:'Playfair Display',serif; font-size:clamp(30px,5vw,48px); font-weight:900; color:#fff; margin-bottom:16px; background:linear-gradient(135deg,#fff,var(--rose)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.result-tagline { font-family:'Playfair Display',serif; font-style:italic; font-size:clamp(15px,2.5vw,19px); color:var(--muted); margin-bottom:28px; line-height:1.5; }
+.result-desc { font-size:16px; color:var(--muted); line-height:1.8; font-weight:300; max-width:560px; margin:0 auto; }
+.divider { height:1px; background:var(--border); margin:40px 0; }
+.section-label { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--rose); margin-bottom:20px; font-weight:500; }
+.insight-item { display:flex; gap:20px; align-items:flex-start; padding:18px 0; border-bottom:1px solid var(--border); }
+.insight-item:last-child { border-bottom:none; }
+.insight-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
+.insight-text { font-size:15px; color:var(--muted); line-height:1.6; font-weight:300; }
+.insight-text strong { color:var(--text); font-weight:500; }
 
-/* ========== RESULT ========== */
-#result {
-  display: none; min-height: 100vh;
-  padding: 48px 24px; animation: fadeUp 0.8s ease;
-}
+/* AI Teaser */
+.ai-teaser { background:linear-gradient(135deg,rgba(196,96,122,0.06),rgba(212,168,83,0.06)); border:1px solid rgba(232,160,176,0.12); border-radius:4px; padding:28px; margin-bottom:8px; }
+.teaser-label { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--rose); margin-bottom:20px; font-weight:500; }
+.teaser-loading { display:flex; gap:6px; justify-content:center; padding:12px 0; }
+.teaser-text { font-family:'Playfair Display',serif; font-size:17px; line-height:1.8; color:var(--text); margin-bottom:20px; font-style:italic; }
+.teaser-blur { position:relative; margin-bottom:20px; }
+.teaser-blurred { font-size:15px; line-height:1.7; color:var(--muted); filter:blur(5px); user-select:none; margin-bottom:10px; font-weight:300; }
+.teaser-lock { display:flex; align-items:center; gap:10px; justify-content:center; padding:16px 0; font-size:13px; color:var(--muted); letter-spacing:1px; border-top:1px solid var(--border); margin-top:16px; }
 
-.result-wrap { max-width: 700px; margin: 0 auto; }
-
-.result-header { text-align: center; margin-bottom: 56px; }
-
-.result-tag {
-  font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-  color: var(--rose); opacity: 0.7; margin-bottom: 20px; font-weight: 500;
-}
-
-.result-emoji { font-size: 64px; margin-bottom: 20px; display: block; }
-
-.result-type-label {
-  font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 12px;
-}
-
-.result-name {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(32px, 6vw, 54px);
-  font-weight: 900; color: #fff; margin-bottom: 16px;
-  background: linear-gradient(135deg, #fff, var(--rose));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-
-.result-tagline {
-  font-family: 'Playfair Display', serif;
-  font-style: italic; font-size: clamp(16px, 2.5vw, 20px);
-  color: var(--muted); margin-bottom: 32px; line-height: 1.5;
-}
-
-.result-desc {
-  font-size: 17px; color: var(--muted);
-  line-height: 1.8; font-weight: 300;
-  max-width: 560px; margin: 0 auto;
-}
-
-.divider {
-  height: 1px; background: var(--border);
-  margin: 48px 0;
-}
-
-/* FREE INSIGHTS */
-.free-insights { margin-bottom: 48px; }
-
-.section-label {
-  font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-  color: var(--rose); margin-bottom: 24px; font-weight: 500;
-}
-
-.insight-item {
-  display: flex; gap: 20px; align-items: flex-start;
-  padding: 20px 0; border-bottom: 1px solid var(--border);
-}
-.insight-item:last-child { border-bottom: none; }
-
-.insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-.insight-text { font-size: 15px; color: var(--muted); line-height: 1.6; font-weight: 300; }
-.insight-text strong { color: var(--text); font-weight: 500; }
-
-/* PAYWALL */
-.paywall {
-  background: linear-gradient(135deg, rgba(196,96,122,0.08), rgba(212,168,83,0.08));
-  border: 1px solid rgba(232,160,176,0.15);
-  border-radius: 4px; padding: 40px;
-  text-align: center; margin-bottom: 32px;
-  position: relative; overflow: hidden;
-}
-
-.paywall::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--rose-deep), var(--gold));
-}
-
-.paywall-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700;
-  color: #fff; margin-bottom: 8px;
-}
-
-.paywall-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; }
-
-.paywall-items {
-  list-style: none; margin-bottom: 36px;
-  display: flex; flex-direction: column; gap: 12px; text-align: left;
-}
-
-.paywall-items li {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 15px; color: var(--muted);
-}
-.paywall-items li::before { content: '✦'; color: var(--gold); font-size: 10px; flex-shrink: 0; }
-.paywall-items li.locked { filter: blur(4px); user-select: none; }
-
-.price-display {
-  display: flex; align-items: baseline;
-  justify-content: center; gap: 8px; margin-bottom: 24px;
-}
-.price-amount {
-  font-family: 'Playfair Display', serif;
-  font-size: 48px; font-weight: 900; color: #fff;
-}
-.price-note { font-size: 14px; color: var(--muted); }
-
+/* Paywall */
+.paywall { background:linear-gradient(135deg,rgba(196,96,122,0.08),rgba(212,168,83,0.08)); border:1px solid rgba(232,160,176,0.15); border-radius:4px; padding:36px; text-align:center; margin-bottom:32px; position:relative; overflow:hidden; }
+.paywall::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--rose-deep),var(--gold)); }
+.paywall-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#fff; margin-bottom:8px; }
+.paywall-sub { font-size:15px; color:var(--muted); margin-bottom:28px; font-weight:300; }
+.paywall-items { list-style:none; margin-bottom:24px; display:flex; flex-direction:column; gap:10px; text-align:left; }
+.paywall-items li { display:flex; align-items:center; gap:12px; font-size:15px; color:var(--muted); }
+.paywall-items li::before { content:'✦'; color:var(--gold); font-size:10px; flex-shrink:0; }
+.paywall-items li.locked { filter:blur(4px); user-select:none; }
 .pay-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
-  color: #fff; border: none; padding: 20px;
-  font-family: 'DM Sans', sans-serif; font-size: 15px;
-  font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; border-radius: 2px;
-  transition: all 0.3s;
-  box-shadow: 0 8px 32px rgba(196,96,122,0.3);
+  width:100%; color:#fff; border:none; padding:20px;
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+  letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+  border-radius:8px; transition:all 0.3s;
+  background:linear-gradient(90deg,#d37279,#e2ac6b);
+  box-shadow:0 4px 15px rgba(211,114,121,0.3);
 }
-.pay-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(196,96,122,0.4); }
+.pay-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(211,114,121,0.4); }
+.pay-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
-/* SHARE */
-.share-section { text-align: center; margin-bottom: 48px; }
+.retry-btn { display:block; margin:0 auto; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px 32px; font-family:'DM Sans',sans-serif; font-size:13px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; border-radius:2px; transition:all 0.3s; }
+.retry-btn:hover { border-color:var(--rose); color:var(--rose); }
 
-.share-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 700;
-  color: var(--text); margin-bottom: 8px;
-}
-.share-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+/* ============================================================
+   FULL REPORT (locked by default)
+============================================================ */
+#ai-report { padding:80px 24px 40px; }
+.report-wrap { max-width:700px; margin:0 auto; }
+.report-header { text-align:center; margin-bottom:48px; padding-bottom:40px; border-bottom:1px solid var(--border); }
+.report-badge { display:inline-block; background:linear-gradient(135deg,var(--rose-deep),var(--gold)); color:#fff; padding:6px 16px; border-radius:20px; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:500; margin-bottom:24px; }
+.report-title { font-family:'Playfair Display',serif; font-size:clamp(26px,4vw,40px); font-weight:900; color:#fff; margin-bottom:8px; }
+.report-date { font-size:13px; color:var(--muted); letter-spacing:1px; }
+.report-section { margin-bottom:40px; }
+.report-section-title { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:var(--rose); margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.report-content { font-size:16px; color:var(--muted); line-height:1.9; font-weight:300; }
+.report-content p { margin-bottom:14px; }
+.report-content strong { color:var(--text); font-weight:500; }
+.loading-wrap { text-align:center; padding:80px 0; }
+.loading-title { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:#fff; margin-bottom:12px; }
+.loading-sub { font-size:15px; color:var(--muted); margin-bottom:40px; }
+.loading-dots { display:flex; gap:8px; justify-content:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:var(--rose); opacity:0.3; animation:blink 1.4s ease-in-out infinite; }
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 
-.share-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* ============================================================
+   LEGAL PAGES
+============================================================ */
+#privacy, #terms { padding:80px 24px 60px; }
+.legal-wrap { max-width:700px; margin:0 auto; }
+.legal-title { font-family:'Playfair Display',serif; font-size:clamp(28px,5vw,42px); font-weight:900; color:#fff; margin-bottom:8px; }
+.legal-date { font-size:13px; color:var(--muted); margin-bottom:48px; letter-spacing:1px; }
+.legal-section { margin-bottom:36px; }
+.legal-section h3 { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--rose); margin-bottom:14px; }
+.legal-section p, .legal-section li { font-size:15px; color:var(--muted); line-height:1.8; font-weight:300; margin-bottom:10px; }
+.legal-section ul { padding-left:20px; }
 
-.share-btn {
-  padding: 12px 24px; border-radius: 2px;
-  font-family: 'DM Sans', sans-serif; font-size: 13px;
-  font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
-  cursor: pointer; transition: all 0.3s; border: none;
-}
-.share-twitter { background: rgba(29,161,242,0.15); color: #1da1f2; border: 1px solid rgba(29,161,242,0.2); }
-.share-twitter:hover { background: rgba(29,161,242,0.25); }
-.share-copy { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
-.share-copy:hover { border-color: var(--rose); color: var(--rose); }
-
-.retry-btn {
-  display: block; margin: 0 auto;
-  background: transparent; border: 1px solid var(--border);
-  color: var(--muted); padding: 12px 32px;
-  font-family: 'DM Sans', sans-serif; font-size: 13px;
-  letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; border-radius: 2px; transition: all 0.3s;
-}
-.retry-btn:hover { border-color: var(--rose); color: var(--rose); }
-
-/* AI REPORT */
-#ai-report {
-  display: none; min-height: 100vh;
-  padding: 48px 24px; animation: fadeUp 0.8s ease;
-}
-
-.report-wrap { max-width: 700px; margin: 0 auto; }
-
-.report-header {
-  text-align: center; margin-bottom: 56px;
-  padding-bottom: 40px; border-bottom: 1px solid var(--border);
-}
-
-.report-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
-  color: #fff; padding: 6px 16px; border-radius: 20px;
-  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-  font-weight: 500; margin-bottom: 24px;
-}
-
-.report-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(28px, 5vw, 44px);
-  font-weight: 900; color: #fff; margin-bottom: 8px;
-}
-
-.report-date { font-size: 13px; color: var(--muted); letter-spacing: 1px; }
-
-.report-section { margin-bottom: 48px; }
-
-.report-section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; font-weight: 700;
-  color: var(--rose); margin-bottom: 20px;
-  padding-bottom: 12px; border-bottom: 1px solid var(--border);
-}
-
-.report-content {
-  font-size: 16px; color: var(--muted);
-  line-height: 1.9; font-weight: 300;
-}
-.report-content p { margin-bottom: 16px; }
-.report-content strong { color: var(--text); font-weight: 500; }
-
-.loading-wrap { text-align: center; padding: 80px 0; }
-.loading-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 12px;
-}
-.loading-sub { font-size: 15px; color: var(--muted); margin-bottom: 40px; }
-
-.loading-dots { display: flex; gap: 8px; justify-content: center; }
-.dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--rose); opacity: 0.3;
-  animation: blink 1.4s ease-in-out infinite;
-}
-.dot:nth-child(2) { animation-delay: 0.2s; }
-.dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink {
-  0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* ============================================================
+   FOOTER
+============================================================ */
+footer { background:var(--surface); border-top:1px solid var(--border); padding:48px 24px 24px; margin-top:80px; position:relative; z-index:1; }
+.footer-grid { max-width:700px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:40px; }
+.footer-col-title { font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--rose); margin-bottom:16px; font-weight:500; }
+.footer-links { display:flex; flex-direction:column; gap:10px; }
+.footer-link { font-size:14px; color:var(--muted); cursor:pointer; transition:color 0.3s; background:none; border:none; font-family:'DM Sans',sans-serif; text-align:left; padding:0; }
+.footer-link:hover { color:var(--rose); }
+.footer-bottom { max-width:700px; margin:0 auto; padding-top:24px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+.footer-logo { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; background:linear-gradient(135deg,var(--rose),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.footer-copy { font-size:12px; color:var(--muted); }
+.footer-social { display:flex; gap:12px; }
+.social-btn { width:36px; height:36px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s; }
+.social-btn:hover { border-color:var(--rose); transform:translateY(-2px); }
 
 /* SCROLLBAR */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--rose-deep); border-radius: 2px; }
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--rose-deep);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- ========== LANDING ========== -->
-<div id="landing">
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav class="navbar">
+  <div class="nav-logo" onclick="showPage('landing')">RelationshipDNA</div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="showPage('landing')">Home</button>
+    <button class="nav-link" onclick="showPage('privacy')">Privacy</button>
+    <button class="nav-link" onclick="showPage('terms')">Terms</button>
+    <div id="navUser" style="display:none;" class="nav-user">
+      <div class="nav-avatar" id="navAvatar"></div>
+      <span id="navName"></span>
+      <button class="nav-link" onclick="signOut()">Sign out</button>
+    </div>
+    <button class="nav-cta" onclick="startQuiz()" id="navQuizBtn">Take the Quiz →</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     LANDING
+============================================================ -->
+<div id="landing" class="page active">
   <div class="brand">RelationshipDNA</div>
-  <div class="dna-visual">
+  <div class="dna-dots">
     <div class="dna-dot"></div><div class="dna-dot"></div>
     <div class="dna-dot"></div><div class="dna-dot"></div>
     <div class="dna-dot"></div>
@@ -527,22 +346,57 @@ body::before {
   <p class="landing-subtitle">Discover your emotional blueprint in 3 minutes</p>
   <p class="landing-desc">15 carefully crafted questions reveal the hidden patterns driving your love life — and why the same situations keep repeating.</p>
   <button class="cta-main" onclick="startQuiz()">Discover Your DNA →</button>
-  <div class="landing-meta">
-    <div class="meta-item"><span class="meta-num">847K</span><div class="meta-label">Women Analyzed</div></div>
-    <div class="meta-item"><span class="meta-num">5</span><div class="meta-label">DNA Types</div></div>
-    <div class="meta-item"><span class="meta-num">94%</span><div class="meta-label">Say It's Accurate</div></div>
+  <div class="landing-stats">
+    <div class="stat-item"><span class="stat-num">847K</span><div class="stat-label">Women Analyzed</div></div>
+    <div class="stat-item"><span class="stat-num">5</span><div class="stat-label">DNA Types</div></div>
+    <div class="stat-item"><span class="stat-num">94%</span><div class="stat-label">Say It's Accurate</div></div>
   </div>
+  <div class="testimonials">
+    <div class="test-title">What women are saying</div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"This described me better than 3 years of journaling. I finally understand why I keep ending up in the same situations."</p>
+      <div class="test-author"><div class="test-avatar">S</div><div><div class="test-name">Sarah M.</div><div class="test-type">The Overgiver</div></div></div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"I cried reading my result. It was uncomfortably accurate. The AI report felt like it was written specifically for me."</p>
+      <div class="test-author"><div class="test-avatar">J</div><div><div class="test-name">Jessica K.</div><div class="test-type">The Emotional Escaper</div></div></div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"Sent this to all my friends immediately. Best $8.99 I've ever spent."</p>
+      <div class="test-author"><div class="test-avatar">A</div><div><div class="test-name">Alyssa R.</div><div class="test-type">The Silent Tester</div></div></div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div><div class="footer-col-title">Explore</div><div class="footer-links"><button class="footer-link" onclick="startQuiz()">Take the Quiz</button><button class="footer-link" onclick="showPage('landing')">About</button></div></div>
+      <div><div class="footer-col-title">Legal</div><div class="footer-links"><button class="footer-link" onclick="showPage('privacy')">Privacy Policy</button><button class="footer-link" onclick="showPage('terms')">Terms of Service</button></div></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-logo">RelationshipDNA</div>
+      <div class="footer-copy">© 2026 RelationshipDNA. All rights reserved.</div>
+      <div class="footer-social">
+        <div class="social-btn" onclick="window.open('https://twitter.com','_blank')"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <div class="social-btn" onclick="window.open('https://instagram.com','_blank')"><svg width="14" height="14" viewBox="0 0 24 24" fill="url(#ig1)"><defs><linearGradient id="ig1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+        <div class="social-btn" onclick="window.open('https://pinterest.com','_blank')"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E60023"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg></div>
+      </div>
+    </div>
+  </footer>
 </div>
 
-<!-- ========== QUIZ ========== -->
-<div id="quiz">
-  <div class="quiz-header container">
+<!-- ============================================================
+     QUIZ
+============================================================ -->
+<div id="quiz" class="page">
+  <div class="quiz-top container">
     <div class="quiz-brand">RelationshipDNA</div>
     <div class="quiz-counter" id="qCounter">1 of 15</div>
   </div>
   <div class="progress-wrap container">
     <div class="progress-track"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-    <div class="progress-label"><span id="progressPct">0% complete</span><span>3 min</span></div>
+    <div class="progress-label"><span id="progressPct">0% complete</span><span>~3 min</span></div>
   </div>
   <div class="question-wrap container">
     <div class="q-number" id="qNumber">Question 01</div>
@@ -551,20 +405,30 @@ body::before {
   </div>
 </div>
 
-<!-- ========== EMAIL GATE ========== -->
-<div id="email-gate" style="display:none; min-height:100vh; align-items:center; justify-content:center; padding:48px 24px;">
+<!-- ============================================================
+     EMAIL GATE
+============================================================ -->
+<div id="email-gate" class="page">
   <div class="gate-card">
     <div class="gate-icon">🧬</div>
     <h2 class="gate-title">Your DNA is ready.</h2>
-    <p class="gate-sub">Enter your email to reveal your relationship type — and get a free preview of your emotional blueprint.</p>
+    <p class="gate-sub">Sign in to reveal your relationship type — free, instant, no credit card needed.</p>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="gate-divider"><span>or</span></div>
     <input type="email" class="email-input" id="emailInput" placeholder="your@email.com">
-    <button class="gate-btn" onclick="submitEmail()">Reveal My Type →</button>
+    <div class="gate-error" id="gateError">Please enter a valid email address.</div>
+    <button class="gate-btn" onclick="submitEmail()">Continue with Email →</button>
     <p class="gate-privacy">🔒 No spam. Unsubscribe anytime.</p>
   </div>
 </div>
 
-<!-- ========== RESULT ========== -->
-<div id="result">
+<!-- ============================================================
+     RESULT (free preview + locked paywall)
+============================================================ -->
+<div id="result" class="page">
   <div class="result-wrap">
     <div class="result-header">
       <div class="result-tag">Your Relationship DNA</div>
@@ -575,54 +439,86 @@ body::before {
       <p class="result-desc" id="rDesc"></p>
     </div>
 
-    <div class="free-insights">
-      <div class="section-label">Free Insights</div>
-      <div id="rInsights"></div>
+    <!-- FREE INSIGHTS -->
+    <div class="section-label">Free Insights</div>
+    <div id="rInsights"></div>
+
+    <div class="divider"></div>
+
+    <!-- AI TEASER -->
+    <div class="ai-teaser" id="aiTeaser">
+      <div class="teaser-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        AI is analyzing your answers…
+      </div>
+      <div class="teaser-loading" id="teaserLoading">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="teaser-content" id="teaserContent" style="display:none;">
+        <p id="teaserText" class="teaser-text"></p>
+        <div class="teaser-blur">
+          <p class="teaser-blurred">The reason you keep choosing emotionally unavailable people isn't accidental. Your answers reveal a pattern that started long before your last relationship...</p>
+          <p class="teaser-blurred">There's a specific emotional wound — usually from early on — where you learned that your needs were secondary to keeping the peace...</p>
+        </div>
+        <div class="teaser-lock">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>The rest of your analysis is locked</span>
+        </div>
+      </div>
     </div>
 
     <div class="divider"></div>
 
+    <!-- PAYWALL -->
     <div class="paywall">
       <div class="paywall-title">Your Full Relationship Report</div>
-      <div class="paywall-sub">A deeply personal AI-generated analysis, written just for you.</div>
+      <div class="paywall-sub">A deeply personal AI analysis, written just for you.</div>
       <ul class="paywall-items">
-        <li>The root cause of your relationship pattern</li>
-        <li class="locked">Why you attract the wrong people</li>
-        <li class="locked">Your hidden emotional triggers</li>
-        <li class="locked">How you self-sabotage without knowing</li>
-        <li class="locked">The exact type of partner who heals you</li>
-        <li class="locked">A 30-day growth roadmap for your type</li>
+        <li>The subconscious root cause of your pattern</li>
+        <li class="locked">Your 3 main relationship blindspots</li>
+        <li class="locked">Who you attract vs. who you actually need</li>
+        <li class="locked">Your 30-day psychological growth roadmap</li>
       </ul>
-      <div class="price-display">
-        <span class="price-amount">$7</span>
-        <span class="price-note">one-time · instant access</span>
+      <div style="text-align:center; margin-top:25px; margin-bottom:8px;">
+        <span style="font-size:42px; font-weight:bold; color:#fff;">$8.99</span>
+        <span style="font-size:14px; color:var(--muted); font-weight:normal;">/mo</span>
       </div>
-      <button class="pay-btn" onclick="unlockReport()">Unlock My Full Report →</button>
-    </div>
-
-    <div class="share-section">
-      <div class="share-title">Share your type</div>
-      <div class="share-sub">Your friends might recognize themselves too.</div>
-      <div class="share-buttons">
-        <button class="share-btn share-twitter" onclick="shareTwitter()">Share on X</button>
-        <button class="share-btn share-copy" onclick="copyLink()">Copy Link</button>
-      </div>
+      <p style="text-align:center; font-size:12px; color:var(--muted); margin-bottom:20px; letter-spacing:1px;">
+        Instant Access &nbsp;•&nbsp; Cancel Anytime &nbsp;•&nbsp; Includes 1 New Test Every Month
+      </p>
+      <button class="pay-btn" id="unlockBtn" onclick="unlockReport()">🔓 Unlock My Full Report →</button>
     </div>
 
     <div class="divider"></div>
     <button class="retry-btn" onclick="restart()">↺ Retake the Quiz</button>
   </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div><div class="footer-col-title">Explore</div><div class="footer-links"><button class="footer-link" onclick="restart()">Retake Quiz</button><button class="footer-link" onclick="showPage('landing')">Home</button></div></div>
+      <div><div class="footer-col-title">Legal</div><div class="footer-links"><button class="footer-link" onclick="showPage('privacy')">Privacy Policy</button><button class="footer-link" onclick="showPage('terms')">Terms of Service</button></div></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-logo">RelationshipDNA</div>
+      <div class="footer-copy">© 2026 RelationshipDNA. All rights reserved.</div>
+      <div class="footer-social">
+        <div class="social-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <div class="social-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="url(#ig2)"><defs><linearGradient id="ig2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+        <div class="social-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E60023"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg></div>
+      </div>
+    </div>
+  </footer>
 </div>
 
-<!-- ========== AI REPORT ========== -->
-<div id="ai-report">
+<!-- ============================================================
+     FULL REPORT (unlocked after payment)
+============================================================ -->
+<div id="ai-report" class="page">
   <div class="report-wrap">
     <div id="reportLoading" class="loading-wrap">
-      <div class="loading-title">Analyzing your emotional blueprint…</div>
-      <div class="loading-sub">Our AI is writing your personalized report</div>
-      <div class="loading-dots">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      </div>
+      <div class="loading-title">Generating your personal report…</div>
+      <div class="loading-sub">Our AI is writing your full analysis</div>
+      <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
     </div>
     <div id="reportContent" style="display:none;">
       <div class="report-header">
@@ -635,322 +531,446 @@ body::before {
       <button class="retry-btn" onclick="restart()">↺ Retake the Quiz</button>
     </div>
   </div>
+  <footer>
+    <div class="footer-bottom" style="max-width:700px;margin:0 auto;">
+      <div class="footer-logo">RelationshipDNA</div>
+      <div class="footer-copy">© 2026 RelationshipDNA. All rights reserved.</div>
+      <div style="display:flex;gap:16px;">
+        <button class="footer-link" onclick="showPage('privacy')">Privacy</button>
+        <button class="footer-link" onclick="showPage('terms')">Terms</button>
+      </div>
+    </div>
+  </footer>
 </div>
 
+<!-- ============================================================
+     PRIVACY POLICY
+============================================================ -->
+<div id="privacy" class="page">
+  <div class="legal-wrap">
+    <h1 class="legal-title">Privacy Policy</h1>
+    <div class="legal-date">Last updated: January 2026</div>
+    <div class="legal-section"><h3>1. Information We Collect</h3><p>When you use RelationshipDNA, we collect: your email address (provided voluntarily), quiz responses (used only to calculate your result), and basic usage data.</p></div>
+    <div class="legal-section"><h3>2. How We Use Your Information</h3><p>Your email is used to deliver your quiz results and send occasional relationship insights. You can unsubscribe anytime. We never sell your personal data to third parties.</p></div>
+    <div class="legal-section"><h3>3. Data Storage & Security</h3><p>Your data is stored securely via Supabase and encrypted at rest. Quiz responses are processed anonymously. We retain your email until you request deletion.</p></div>
+    <div class="legal-section"><h3>4. Your Rights</h3><p>You have the right to access, correct, or delete your personal data at any time. Contact us at privacy@relationshipdna.com</p></div>
+    <div class="legal-section"><h3>5. Cookies</h3><p>We use minimal cookies to remember your session. We do not use advertising cookies or third-party tracking.</p></div>
+    <div class="legal-section"><h3>6. Contact</h3><p>Questions? Email us at privacy@relationshipdna.com</p></div>
+  </div>
+  <footer><div class="footer-bottom" style="max-width:700px;margin:0 auto;"><div class="footer-logo">RelationshipDNA</div><div class="footer-copy">© 2026 RelationshipDNA. All rights reserved.</div><div style="display:flex;gap:16px;"><button class="footer-link" onclick="showPage('terms')">Terms</button><button class="footer-link" onclick="showPage('landing')">Home</button></div></div></footer>
+</div>
+
+<!-- ============================================================
+     TERMS OF SERVICE
+============================================================ -->
+<div id="terms" class="page">
+  <div class="legal-wrap">
+    <h1 class="legal-title">Terms of Service</h1>
+    <div class="legal-date">Last updated: January 2026</div>
+    <div class="legal-section"><h3>1. Acceptance of Terms</h3><p>By using RelationshipDNA, you agree to these terms. If you do not agree, please do not use the service.</p></div>
+    <div class="legal-section"><h3>2. Service Description</h3><p>RelationshipDNA provides personality assessments and AI-generated relationship insights for self-reflection purposes. Our content is not a substitute for professional psychological or therapeutic advice.</p></div>
+    <div class="legal-section"><h3>3. Payments & Refunds</h3><p>Full reports are available for $8.99/month. Due to the digital nature of our product, all sales are final. If you experience a technical issue, contact support within 7 days for assistance.</p></div>
+    <div class="legal-section"><h3>4. Disclaimer</h3><p>RelationshipDNA assessments are for self-reflection and entertainment. Results are not clinical diagnoses. We are not responsible for decisions made based on quiz results.</p></div>
+    <div class="legal-section"><h3>5. Intellectual Property</h3><p>All content, questions, and AI-generated reports are the intellectual property of RelationshipDNA. You may not reproduce or redistribute our content without permission.</p></div>
+    <div class="legal-section"><h3>6. Contact</h3><p>For support: support@relationshipdna.com</p></div>
+  </div>
+  <footer><div class="footer-bottom" style="max-width:700px;margin:0 auto;"><div class="footer-logo">RelationshipDNA</div><div class="footer-copy">© 2026 RelationshipDNA. All rights reserved.</div><div style="display:flex;gap:16px;"><button class="footer-link" onclick="showPage('privacy')">Privacy</button><button class="footer-link" onclick="showPage('landing')">Home</button></div></div></footer>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
 <script>
-// ========== DATA ==========
+/* ============================================================
+   CONFIG — SWAP THESE VALUES
+============================================================ */
+const SUPABASE_URL  = 'https://phvqtulvrspkxtcbnakr.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_jLYgsHX1G-brHOThDEdp-Q_O6zh3T6z';
+const PADDLE_PRICE_ID = 'pri_01ksg0jaky1qph4ebymkam2j26'; // $8.99/mo sandbox
+const PADDLE_TOKEN    = 'test_7d279571f48b9cca3d78e0dbba5'; // replace with live token for production
+
+/* ============================================================
+   SUPABASE INIT
+============================================================ */
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ============================================================
+   DATA
+============================================================ */
 const questions = [
-  { q: "When someone you love is upset, your first instinct is:", options: ["Drop everything and fix it for them","Give them space and hope it passes","Wait to see if they bring it up first","Ask 'what did I do wrong?'"] },
-  { q: "After an argument, you usually:", options: ["Apologize even if it wasn't your fault","Go quiet and pull away","Replay it 100 times in your head","Need reassurance that they still love you"] },
-  { q: "Your partner hasn't texted back in 3 hours. You:", options: ["Assume they're busy and feel fine","Start wondering if something's wrong","Check if they've been online","Send a 'hey, you okay?' just to be sure"] },
-  { q: "In relationships, you tend to:", options: ["Give more than you receive","Keep emotional walls up","Test people without telling them","Need constant proof you're loved"] },
-  { q: "When you're hurting, you:", options: ["Hide it and focus on others","Shut down completely","Drop hints and wait to be asked","Seek comfort immediately"] },
-  { q: "Your love language is probably:", options: ["Acts of service — you show love by doing","Quality time — but only when you feel safe","Words of affirmation — but you rarely believe them","Physical touch — you need to feel close"] },
-  { q: "If a friend cancels plans last minute, you feel:", options: ["Fine — you put their needs first","Relieved, honestly","A little hurt but say nothing","Anxious that they might be avoiding you"] },
-  { q: "Your biggest fear in a relationship is:", options: ["Not being needed","Losing your independence","Being misunderstood","Being abandoned"] },
-  { q: "When things get emotionally deep, you:", options: ["Lean in — you love deep connection","Change the subject or make a joke","Get quiet and observe","Get nervous and need reassurance"] },
-  { q: "Your friends would describe you as:", options: ["Always there for everyone","Hard to read sometimes","Mysterious and selective","A little sensitive but deeply caring"] },
-  { q: "In past relationships, the pattern was:", options: ["You gave everything and got little back","You kept people at arm's length","You pushed people away with your tests","You needed more than they could give"] },
-  { q: "When you're really happy in a relationship, you:", options: ["Do everything to make them happy too","Still keep a small part of yourself protected","Wonder when something will go wrong","Tell them constantly how much they mean to you"] },
-  { q: "Your ideal partner would:", options: ["Let you take care of them","Respect your need for space","Prove their love through actions, not words","Make you feel safe and chosen every day"] },
-  { q: "The hardest thing for you to say is:", options: ["'I need help'","'I love you' first","'I'm hurt and here's why'","'I trust you completely'"] },
-  { q: "Deep down, your relationship pattern is driven by:", options: ["A need to feel useful and valuable","A fear of being controlled or hurt","Distrust built from past experiences","A desperate need to feel truly loved"] }
+  {q:"When someone you love is upset, your first instinct is:",options:["Drop everything and fix it for them","Give them space and hope it passes","Wait to see if they bring it up first","Ask 'what did I do wrong?'"]},
+  {q:"After an argument, you usually:",options:["Apologize even if it wasn't your fault","Go quiet and pull away","Replay it 100 times in your head","Need reassurance that they still love you"]},
+  {q:"Your partner hasn't texted back in 3 hours. You:",options:["Assume they're busy and feel fine","Start wondering if something's wrong","Check if they've been online","Send a 'hey, you okay?' just to be sure"]},
+  {q:"In relationships, you tend to:",options:["Give more than you receive","Keep emotional walls up","Test people without telling them","Need constant proof you're loved"]},
+  {q:"When you're hurting, you:",options:["Hide it and focus on others","Shut down completely","Drop hints and wait to be asked","Seek comfort immediately"]},
+  {q:"Your love language is probably:",options:["Acts of service — you show love by doing","Quality time — but only when you feel safe","Words of affirmation — but you rarely believe them","Physical touch — you need to feel close"]},
+  {q:"If a friend cancels plans last minute, you feel:",options:["Fine — you put their needs first","Relieved, honestly","A little hurt but say nothing","Anxious that they might be avoiding you"]},
+  {q:"Your biggest fear in a relationship is:",options:["Not being needed","Losing your independence","Being misunderstood","Being abandoned"]},
+  {q:"When things get emotionally deep, you:",options:["Lean in — you love deep connection","Change the subject or make a joke","Get quiet and observe","Get nervous and need reassurance"]},
+  {q:"Your friends would describe you as:",options:["Always there for everyone","Hard to read sometimes","Mysterious and selective","A little sensitive but deeply caring"]},
+  {q:"In past relationships, the pattern was:",options:["You gave everything and got little back","You kept people at arm's length","You pushed people away with your tests","You needed more than they could give"]},
+  {q:"When you're really happy in a relationship, you:",options:["Do everything to make them happy too","Still keep a small part of yourself protected","Wonder when something will go wrong","Tell them constantly how much they mean to you"]},
+  {q:"Your ideal partner would:",options:["Let you take care of them","Respect your need for space","Prove their love through actions, not words","Make you feel safe and chosen every day"]},
+  {q:"The hardest thing for you to say is:",options:["'I need help'","'I love you' first","'I'm hurt and here's why'","'I trust you completely'"]},
+  {q:"Deep down, your relationship pattern is driven by:",options:["A need to feel useful and valuable","A fear of being controlled or hurt","Distrust built from past experiences","A desperate need to feel truly loved"]}
 ];
 
 const types = [
-  {
-    id: 'overgiver',
-    name: "The Overgiver",
-    emoji: "💛",
-    tagline: '"You love so hard, you forget to love yourself."',
-    desc: "You give endlessly — your time, energy, and heart. You make people feel deeply loved, but deep down you're exhausted and invisible. Your worth feels tied to how much you can do for others.",
-    insights: [
-      { icon: "🔍", text: "<strong>Your core pattern:</strong> You prioritize others' needs so consistently that your own go unmet — and you've learned to call this love." },
-      { icon: "⚠️", text: "<strong>The hidden cost:</strong> People often take your giving for granted, not because they're cruel, but because you never show them you're running empty." },
-      { icon: "💡", text: "<strong>Your strength:</strong> Your capacity for love is extraordinary. The work is learning to direct even a fraction of it inward." }
-    ],
-    reportPrompt: "The Overgiver — someone who gives endlessly in relationships at the cost of their own needs, feels their worth is tied to usefulness, and struggles to receive love as freely as they give it."
-  },
-  {
-    id: 'escaper',
-    name: "The Emotional Escaper",
-    emoji: "🩶",
-    tagline: '"You crave love, but run the moment it gets real."',
-    desc: "You want deep connection more than almost anything — but when it arrives, something inside you pulls back. You've learned that closeness can hurt, so you protect yourself before it gets that far.",
-    insights: [
-      { icon: "🔍", text: "<strong>Your core pattern:</strong> You sabotage intimacy right when it's becoming beautiful, not because you don't want it, but because you don't fully trust it yet." },
-      { icon: "⚠️", text: "<strong>The hidden cost:</strong> The people who could love you best eventually stop trying — and you tell yourself you're better alone." },
-      { icon: "💡", text: "<strong>Your strength:</strong> Your independence is real and valuable. The work is learning that being loved doesn't mean losing yourself." }
-    ],
-    reportPrompt: "The Emotional Escaper — someone with avoidant attachment who craves love but pulls away from intimacy out of deep fear, often sabotaging relationships right when they could become beautiful."
-  },
-  {
-    id: 'tester',
-    name: "The Silent Tester",
-    emoji: "🤍",
-    tagline: '"You set tests no one knows they\'re taking."',
-    desc: "You watch, observe, and test people — silently. You've been hurt before, and now trust must be earned through actions, not words. You're looking for proof before you open your heart.",
-    insights: [
-      { icon: "🔍", text: "<strong>Your core pattern:</strong> You create invisible hurdles for people to clear, hoping they'll prove themselves. But most people don't know they're being tested." },
-      { icon: "⚠️", text: "<strong>The hidden cost:</strong> Good people who could love you well often fail your tests not because they don't care, but because they don't know the rules." },
-      { icon: "💡", text: "<strong>Your strength:</strong> Your ability to read people is remarkable. The work is learning to trust what you see, not just what you test." }
-    ],
-    reportPrompt: "The Silent Tester — someone who tests partners through indirect behavior rather than direct communication, has deep trust wounds from the past, and struggles to be vulnerable first."
-  },
-  {
-    id: 'fixer',
-    name: "The Fixer",
-    emoji: "🧡",
-    tagline: '"You fall for potential, not people."',
-    desc: "You're drawn to people who need healing. You believe your love can transform someone, and you pour yourself into that mission. But you often end up pouring from an empty cup.",
-    insights: [
-      { icon: "🔍", text: "<strong>Your core pattern:</strong> You confuse emotional labor with love. Fixing feels like purpose — but it's often a way to avoid being truly seen yourself." },
-      { icon: "⚠️", text: "<strong>The hidden cost:</strong> You attract people who need rescuing, not people who can meet you as an equal." },
-      { icon: "💡", text: "<strong>Your strength:</strong> Your empathy is profound. The work is learning the difference between loving someone and saving them." }
-    ],
-    reportPrompt: "The Fixer — someone who is attracted to emotionally unavailable or wounded partners, confuses caretaking with love, and often neglects their own needs while trying to heal others."
-  },
-  {
-    id: 'seeker',
-    name: "The Validation Seeker",
-    emoji: "🩷",
-    tagline: '"You need to be chosen — every single day."',
-    desc: "You love with everything you have, and you feel everything deeply. But somewhere inside, there's a voice that whispers you're not quite enough — and you need your partner to silence it, constantly.",
-    insights: [
-      { icon: "🔍", text: "<strong>Your core pattern:</strong> You seek external reassurance to quiet internal doubts. No amount of 'I love you' ever feels permanently enough." },
-      { icon: "⚠️", text: "<strong>The hidden cost:</strong> The pressure this puts on partners can push away the very people who care most about you." },
-      { icon: "💡", text: "<strong>Your strength:</strong> Your emotional depth and capacity for love are gifts. The work is building the internal foundation that makes you feel enough." }
-    ],
-    reportPrompt: "The Validation Seeker — someone with anxious attachment who needs constant reassurance in relationships, struggles with self-worth, and often fears abandonment even when the relationship is going well."
-  }
+  {id:'overgiver',name:"The Overgiver",emoji:"💛",tagline:'"You love so hard, you forget to love yourself."',desc:"You give endlessly — your time, energy, and heart. You make people feel deeply loved, but deep down you're exhausted and invisible. Your worth feels tied to how much you can do for others.",insights:[{icon:"🔍",text:"<strong>Your core pattern:</strong> You prioritize others' needs so consistently that your own go unmet — and you've learned to call this love."},{icon:"⚠️",text:"<strong>The hidden cost:</strong> People often take your giving for granted, not because they're cruel, but because you never show them you're running empty."},{icon:"💡",text:"<strong>Your strength:</strong> Your capacity for love is extraordinary. The work is learning to direct even a fraction of it inward."}],reportPrompt:"The Overgiver — someone who gives endlessly in relationships at the cost of their own needs, feels their worth is tied to usefulness, and struggles to receive love as freely as they give it."},
+  {id:'escaper',name:"The Emotional Escaper",emoji:"🩶",tagline:'"You crave love, but run the moment it gets real."',desc:"You want deep connection more than almost anything — but when it arrives, something inside you pulls back. You've learned that closeness can hurt, so you protect yourself before it gets that far.",insights:[{icon:"🔍",text:"<strong>Your core pattern:</strong> You sabotage intimacy right when it's becoming beautiful, not because you don't want it, but because you don't fully trust it yet."},{icon:"⚠️",text:"<strong>The hidden cost:</strong> The people who could love you best eventually stop trying — and you tell yourself you're better alone."},{icon:"💡",text:"<strong>Your strength:</strong> Your independence is real and valuable. The work is learning that being loved doesn't mean losing yourself."}],reportPrompt:"The Emotional Escaper — someone with avoidant attachment who craves love but pulls away from intimacy out of deep fear, often sabotaging relationships right when they could become beautiful."},
+  {id:'tester',name:"The Silent Tester",emoji:"🤍",tagline:'"You set tests no one knows they\'re taking."',desc:"You watch, observe, and test people — silently. You've been hurt before, and now trust must be earned through actions, not words. You're looking for proof before you open your heart.",insights:[{icon:"🔍",text:"<strong>Your core pattern:</strong> You create invisible hurdles for people to clear, hoping they'll prove themselves. But most people don't know they're being tested."},{icon:"⚠️",text:"<strong>The hidden cost:</strong> Good people who could love you well often fail your tests not because they don't care, but because they don't know the rules."},{icon:"💡",text:"<strong>Your strength:</strong> Your ability to read people is remarkable. The work is learning to trust what you see, not just what you test."}],reportPrompt:"The Silent Tester — someone who tests partners through indirect behavior rather than direct communication, has deep trust wounds from the past, and struggles to be vulnerable first."},
+  {id:'fixer',name:"The Fixer",emoji:"🧡",tagline:'"You fall for potential, not people."',desc:"You're drawn to people who need healing. You believe your love can transform someone, and you pour yourself into that mission. But you often end up pouring from an empty cup.",insights:[{icon:"🔍",text:"<strong>Your core pattern:</strong> You confuse emotional labor with love. Fixing feels like purpose — but it's often a way to avoid being truly seen yourself."},{icon:"⚠️",text:"<strong>The hidden cost:</strong> You attract people who need rescuing, not people who can meet you as an equal."},{icon:"💡",text:"<strong>Your strength:</strong> Your empathy is profound. The work is learning the difference between loving someone and saving them."}],reportPrompt:"The Fixer — someone who is attracted to emotionally unavailable or wounded partners, confuses caretaking with love, and often neglects their own needs while trying to heal others."},
+  {id:'seeker',name:"The Validation Seeker",emoji:"🩷",tagline:'"You need to be chosen — every single day."',desc:"You love with everything you have, and you feel everything deeply. But somewhere inside, there's a voice that whispers you're not quite enough — and you need your partner to silence it, constantly.",insights:[{icon:"🔍",text:"<strong>Your core pattern:</strong> You seek external reassurance to quiet internal doubts. No amount of 'I love you' ever feels permanently enough."},{icon:"⚠️",text:"<strong>The hidden cost:</strong> The pressure this puts on partners can push away the very people who care most about you."},{icon:"💡",text:"<strong>Your strength:</strong> Your emotional depth and capacity for love are gifts. The work is building the internal foundation that makes you feel enough."}],reportPrompt:"The Validation Seeker — someone with anxious attachment who needs constant reassurance in relationships, struggles with self-worth, and often fears abandonment even when the relationship is going well."}
 ];
 
-// ========== STATE ==========
-let scores = [0, 0, 0, 0, 0];
-let currentQ = 0;
-let userType = null;
-let userEmail = '';
+const SYSTEM_PROMPT = `You are an expert Relationship Psychologist and AI Profiler for the platform "RelationshipDNA". Your tone is deeply insightful, raw, objective, and slightly provocative, delivering a sense of "micro-validation" that makes the user feel exposed yet deeply understood. Never break character. Never output pleasantries. Every sentence must feel punchy and uncomfortably accurate. Language: English (US) for western women aged 18-40.`;
 
-// ========== QUIZ ==========
+/* ============================================================
+   STATE
+============================================================ */
+let scores=[0,0,0,0,0], currentQ=0, userType=null, userEmail='', currentUser=null;
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>{ p.classList.remove('active'); p.style.display='none'; });
+  const page = document.getElementById(id);
+  page.style.display = 'block';
+  page.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   SUPABASE AUTH
+============================================================ */
+async function signInWithGoogle() {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) console.error('Google sign in error:', error.message);
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  currentUser = null;
+  updateNavUI(null);
+  showPage('landing');
+}
+
+function updateNavUI(user) {
+  const navUser = document.getElementById('navUser');
+  const navAvatar = document.getElementById('navAvatar');
+  const navName = document.getElementById('navName');
+  if (user) {
+    navUser.style.display = 'flex';
+    navAvatar.textContent = (user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase();
+    navName.textContent = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || '';
+  } else {
+    navUser.style.display = 'none';
+  }
+}
+
+// Listen for auth state changes
+db.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    userEmail = session.user.email;
+    updateNavUI(session.user);
+    // If returning from Google OAuth, go directly to result if quiz was done
+    if (event === 'SIGNED_IN' && scores.some(s => s > 0)) {
+      showResult();
+    }
+  }
+});
+
+/* ============================================================
+   SAVE TO SUPABASE
+============================================================ */
+async function saveQuizResult() {
+  if (!userEmail) return;
+  try {
+    await db.from('quiz_results').upsert({
+      email: userEmail,
+      user_id: currentUser?.id || null,
+      relationship_type: userType.id,
+      relationship_name: userType.name,
+      scores: scores,
+      created_at: new Date().toISOString()
+    }, { onConflict: 'email' });
+  } catch(e) {
+    console.log('Supabase save error:', e.message);
+  }
+}
+
+/* ============================================================
+   QUIZ
+============================================================ */
 function startQuiz() {
-  document.getElementById('landing').style.display = 'none';
-  document.getElementById('quiz').style.display = 'block';
+  scores=[0,0,0,0,0]; currentQ=0;
+  showPage('quiz');
   showQuestion();
 }
 
 function showQuestion() {
-  const q = questions[currentQ];
-  const pct = Math.round((currentQ / questions.length) * 100);
-  document.getElementById('qCounter').textContent = `${currentQ + 1} of ${questions.length}`;
-  document.getElementById('qNumber').textContent = `Question ${String(currentQ + 1).padStart(2, '0')}`;
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '% complete';
-
-  const letters = ['A', 'B', 'C', 'D'];
-  const optDiv = document.getElementById('options');
-  optDiv.innerHTML = '';
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option';
-    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
-    btn.onclick = () => selectOption(i);
+  const q=questions[currentQ], pct=Math.round((currentQ/questions.length)*100);
+  document.getElementById('qCounter').textContent=`${currentQ+1} of ${questions.length}`;
+  document.getElementById('qNumber').textContent=`Question ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'% complete';
+  const letters=['A','B','C','D'];
+  const optDiv=document.getElementById('options');
+  optDiv.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option';
+    btn.innerHTML=`<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>selectOption(i);
     optDiv.appendChild(btn);
   });
 }
 
 function selectOption(i) {
-  scores[i % 5]++;
-  const btns = document.querySelectorAll('.option');
-  btns[i].classList.add('selected');
-  btns.forEach(b => b.onclick = null);
-
-  setTimeout(() => {
-    currentQ++;
-    if (currentQ < questions.length) {
-      showQuestion();
-    } else {
-      showEmailGate();
-    }
-  }, 450);
+  scores[i%5]++;
+  document.querySelectorAll('.option')[i].classList.add('selected');
+  document.querySelectorAll('.option').forEach(b=>b.onclick=null);
+  setTimeout(()=>{ currentQ++; currentQ<questions.length?showQuestion():showEmailGate(); },450);
 }
 
-// ========== EMAIL GATE ==========
+/* ============================================================
+   EMAIL GATE
+============================================================ */
 function showEmailGate() {
-  document.getElementById('quiz').style.display = 'none';
-  const gate = document.getElementById('email-gate');
-  gate.style.display = 'flex';
+  // If user is already signed in, skip gate
+  if (currentUser) { showResult(); return; }
+  showPage('email-gate');
 }
 
-function submitEmail() {
+async function submitEmail() {
   const email = document.getElementById('emailInput').value.trim();
+  const errEl = document.getElementById('gateError');
   if (!email || !email.includes('@')) {
-    document.getElementById('emailInput').style.borderColor = var_rose_deep();
+    errEl.style.display = 'block';
+    document.getElementById('emailInput').style.borderColor = '#ff6b6b';
     return;
   }
+  errEl.style.display = 'none';
   userEmail = email;
   showResult();
 }
 
-function var_rose_deep() { return '#c4607a'; }
-
-// ========== RESULT ==========
+/* ============================================================
+   RESULT
+============================================================ */
 function showResult() {
-  document.getElementById('email-gate').style.display = 'none';
-  document.getElementById('result').style.display = 'block';
-  window.scrollTo(0, 0);
+  showPage('result');
+  const idx=scores.indexOf(Math.max(...scores));
+  userType=types[idx];
+  document.getElementById('rEmoji').textContent=userType.emoji;
+  document.getElementById('rName').textContent=userType.name;
+  document.getElementById('rTagline').textContent=userType.tagline;
+  document.getElementById('rDesc').textContent=userType.desc;
+  const ins=document.getElementById('rInsights');
+  ins.innerHTML='';
+  userType.insights.forEach(i=>{
+    ins.innerHTML+=`<div class="insight-item"><span class="insight-icon">${i.icon}</span><span class="insight-text">${i.text}</span></div>`;
+  });
+  saveQuizResult();
+  generateTeaser();
+}
 
-  const maxScore = Math.max(...scores);
-  const typeIndex = scores.indexOf(maxScore);
-  userType = types[typeIndex];
+/* ============================================================
+   AI TEASER
+============================================================ */
+async function generateTeaser() {
+  document.getElementById('teaserLoading').style.display='flex';
+  document.getElementById('teaserContent').style.display='none';
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:120,
+        system: SYSTEM_PROMPT,
+        messages:[{
+          role:"user",
+          content:`User type: ${userType.name}. Pattern: ${userType.reportPrompt}.
 
-  document.getElementById('rEmoji').textContent = userType.emoji;
-  document.getElementById('rName').textContent = userType.name;
-  document.getElementById('rTagline').textContent = userType.tagline;
-  document.getElementById('rDesc').textContent = userType.desc;
+FREE AI TEASER (max 100 words). Identify their root pattern and deepest fear. Do NOT give solutions. Leave them wanting more.
+Format: "Based on your profile, your deepest pattern is that you [subconscious behavior]. This is why you constantly find yourself [negative outcome]."
+Plain text only.`
+        }]
+      })
+    });
+    const data=await res.json();
+    const text=data.content.map(i=>i.text||'').join('').trim();
+    document.getElementById('teaserLoading').style.display='none';
+    document.getElementById('teaserContent').style.display='block';
+    document.getElementById('teaserText').textContent=text;
+  } catch(e) {
+    document.getElementById('teaserLoading').style.display='none';
+    document.getElementById('teaserContent').style.display='block';
+    document.getElementById('teaserText').textContent=`Based on your profile, your deepest pattern is that you give endlessly to feel worthy of love — not because you're generous, but because deep down you don't believe someone would stay if you stopped. This is why you constantly find yourself exhausted, invisible, and chosen only when you're useful.`;
+  }
+}
 
-  const insightDiv = document.getElementById('rInsights');
-  insightDiv.innerHTML = '';
-  userType.insights.forEach(ins => {
-    insightDiv.innerHTML += `
-      <div class="insight-item">
-        <span class="insight-icon">${ins.icon}</span>
-        <span class="insight-text">${ins.text}</span>
-      </div>`;
+/* ============================================================
+   PADDLE CHECKOUT
+============================================================ */
+function unlockReport() {
+  const btn = document.getElementById('unlockBtn');
+  btn.disabled = true;
+  btn.textContent = 'Opening checkout…';
+
+  Paddle.Checkout.open({
+    items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+    customData: {
+      relationship_type: userType?.id || 'unknown',
+      email: userEmail || ''
+    },
+    settings: { theme: 'dark', locale: 'en' },
+    successCallback: function(data) {
+      // Payment successful — save to DB and show report
+      markUserAsPaid(data);
+      showPage('ai-report');
+      generateAIReport();
+    },
+    closeCallback: function() {
+      btn.disabled = false;
+      btn.textContent = '🔓 Unlock My Full Report →';
+    }
   });
 }
 
-// ========== PAYWALL ==========
-function unlockReport() {
-  // In production: redirect to Paddle checkout
-  // For demo: show AI report directly
-  document.getElementById('result').style.display = 'none';
-  document.getElementById('ai-report').style.display = 'block';
-  window.scrollTo(0, 0);
-  generateAIReport();
+async function markUserAsPaid(paddleData) {
+  if (!userEmail) return;
+  try {
+    await db.from('quiz_results').update({
+      paid: true,
+      paddle_transaction_id: paddleData?.transactionId || null,
+      paid_at: new Date().toISOString()
+    }).eq('email', userEmail);
+  } catch(e) {
+    console.log('Supabase update error:', e.message);
+  }
 }
 
-// ========== AI REPORT ==========
+/* ============================================================
+   AI FULL REPORT (only shown after payment)
+============================================================ */
 async function generateAIReport() {
-  document.getElementById('reportLoading').style.display = 'block';
-  document.getElementById('reportContent').style.display = 'none';
-
+  document.getElementById('reportLoading').style.display='block';
+  document.getElementById('reportContent').style.display='none';
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{
-          role: "user",
-          content: `Write a deeply personal, emotionally intelligent relationship DNA report for someone who is "${userType.reportPrompt}".
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system: SYSTEM_PROMPT,
+        messages:[{
+          role:"user",
+          content:`User type: ${userType.name}. Pattern: ${userType.reportPrompt}.
 
-The report must feel like it was written by a wise therapist who truly understands this person. It should be warm, honest, and occasionally uncomfortable in its accuracy.
-
-Return ONLY a JSON object with this exact structure (no markdown, no backticks):
+PAID FULL REPORT. Return ONLY valid JSON (no markdown, no backticks):
 {
-  "section1_title": "Your Emotional Blueprint",
-  "section1_content": "3 paragraphs about their core emotional patterns and why they developed",
-  "section2_title": "Why You Keep Attracting the Wrong People",
-  "section2_content": "3 paragraphs about their unconscious partner selection patterns",
-  "section3_title": "Your Hidden Self-Sabotage",
-  "section3_content": "3 paragraphs about specific ways they unknowingly damage their relationships",
-  "section4_title": "The Partner Who Heals You",
-  "section4_content": "2 paragraphs describing the specific type of partner who would complement and heal them",
-  "section5_title": "Your 30-Day Growth Path",
-  "section5_content": "5 specific, actionable steps written as direct advice"
+  "section1_title": "The Subconscious Root Cause",
+  "section1_content": "2 raw paragraphs linking this pattern to childhood attachment style.",
+  "section2_title": "Your 3 Relationship Blindspots",
+  "section2_content": "3 numbered blindspots. Each: **Bold Label** — 2 sentences on how it drives partners away.",
+  "section3_title": "Who You Attract vs. Who You Need",
+  "section3_content": "2 paragraphs. First: toxic type they attract and why. Second: the healing partner archetype.",
+  "section4_title": "Your 30-Day Growth Roadmap",
+  "section4_content": "4 weekly exercises. Each: **Week X: Action** — 2 sentences of psychological instruction."
 }`
         }]
       })
     });
-
-    const data = await response.json();
-    const raw = data.content.map(i => i.text || '').join('');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const report = JSON.parse(clean);
-
-    document.getElementById('reportLoading').style.display = 'none';
-    document.getElementById('reportContent').style.display = 'block';
-
-    document.getElementById('reportTitle').textContent = userType.name + ' — Full Report';
-    document.getElementById('reportDate').textContent = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-
-    const sections = document.getElementById('reportSections');
-    sections.innerHTML = '';
-
-    ['section1','section2','section3','section4','section5'].forEach(s => {
-      const title = report[s+'_title'];
-      const content = report[s+'_content'];
-      if (title && content) {
-        const paragraphs = content.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
-        sections.innerHTML += `
-          <div class="report-section">
-            <div class="report-section-title">${title}</div>
-            <div class="report-content">${paragraphs}</div>
-          </div>
-          <div class="divider"></div>`;
+    const data=await res.json();
+    const raw=data.content.map(i=>i.text||'').join('');
+    const report=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('reportLoading').style.display='none';
+    document.getElementById('reportContent').style.display='block';
+    document.getElementById('reportTitle').textContent=userType.name+' — Full Report';
+    document.getElementById('reportDate').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    const sections=document.getElementById('reportSections');
+    sections.innerHTML='';
+    ['section1','section2','section3','section4'].forEach(s=>{
+      if(report[s+'_title']){
+        const content=report[s+'_content']
+          .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+          .split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
+        sections.innerHTML+=`<div class="report-section"><div class="report-section-title">${report[s+'_title']}</div><div class="report-content">${content}</div></div><div class="divider"></div>`;
       }
     });
-
-  } catch (err) {
-    // Fallback if API fails
-    document.getElementById('reportLoading').style.display = 'none';
-    document.getElementById('reportContent').style.display = 'block';
-    document.getElementById('reportTitle').textContent = userType.name + ' — Full Report';
-    document.getElementById('reportDate').textContent = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-
-    const sections = document.getElementById('reportSections');
-    sections.innerHTML = `
+  } catch(e) {
+    document.getElementById('reportLoading').style.display='none';
+    document.getElementById('reportContent').style.display='block';
+    document.getElementById('reportTitle').textContent=userType.name+' — Full Report';
+    document.getElementById('reportDate').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('reportSections').innerHTML=`
       <div class="report-section">
         <div class="report-section-title">Your Emotional Blueprint</div>
         <div class="report-content">
-          <p>Your pattern as <strong>${userType.name}</strong> didn't develop overnight. It was shaped by early experiences that taught you specific lessons about love, safety, and your own worth. These lessons became your blueprint — automatic, invisible, and deeply influential.</p>
-          <p>The beauty and the burden of your type is that your patterns feel completely natural. They don't feel like patterns at all — they feel like the truth of who you are. But they're not. They're strategies that once served you, and can now be consciously evolved.</p>
+          <p>Your pattern as <strong>${userType.name}</strong> didn't develop overnight. It was shaped by early experiences that taught you specific lessons about love, safety, and your own worth.</p>
           <p>Understanding this blueprint is the first step toward changing it — not by fighting who you are, but by choosing, consciously, who you want to become.</p>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="report-section">
-        <div class="report-section-title">Your 30-Day Growth Path</div>
-        <div class="report-content">
-          <p><strong>Week 1:</strong> Notice your pattern in real-time. When you feel the urge to act from your blueprint, pause and name it: "There it is. That's my pattern."</p>
-          <p><strong>Week 2:</strong> Practice the opposite action in small, safe moments. If you over-give, try asking for something small. If you escape, try staying one moment longer.</p>
-          <p><strong>Week 3:</strong> Write about the earliest memory you have of feeling the core fear behind your pattern. This isn't about blame — it's about understanding.</p>
-          <p><strong>Week 4:</strong> Tell one person in your life about your pattern. Vulnerability practiced is vulnerability strengthened.</p>
         </div>
       </div>`;
   }
 }
 
-// ========== SHARE ==========
-function shareTwitter() {
-  const text = `I just discovered I'm "${userType.name}" in relationships — "${userType.tagline}"\n\nFind out your Relationship DNA → RelationshipDNA.com`;
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
-}
-
-function copyLink() {
-  navigator.clipboard.writeText('https://RelationshipDNA.com').then(() => {
-    const btn = document.querySelector('.share-copy');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = 'Copy Link', 2000);
-  });
-}
-
-// ========== RESTART ==========
+/* ============================================================
+   RESTART
+============================================================ */
 function restart() {
-  scores = [0,0,0,0,0];
-  currentQ = 0;
-  userType = null;
-  userEmail = '';
-  document.getElementById('result').style.display = 'none';
-  document.getElementById('ai-report').style.display = 'none';
-  document.getElementById('landing').style.display = 'flex';
-  document.getElementById('landing').style.flexDirection = 'column';
-  document.getElementById('landing').style.alignItems = 'center';
-  document.getElementById('landing').style.justifyContent = 'center';
-  window.scrollTo(0, 0);
+  scores=[0,0,0,0,0]; currentQ=0; userType=null; userEmail='';
+  const emailInput = document.getElementById('emailInput');
+  if (emailInput) emailInput.value='';
+  showPage('landing');
 }
+
+/* ============================================================
+   INIT
+============================================================ */
+// Hide all pages except active
+document.querySelectorAll('.page').forEach(p=>{
+  if(!p.classList.contains('active')) p.style.display='none';
+});
+
+// Init Paddle after page loads
+window.addEventListener('load', function() {
+  if (typeof Paddle !== 'undefined') {
+    Paddle.Environment.set('sandbox'); // change to 'production' for live
+    Paddle.Initialize({
+      token: PADDLE_TOKEN,
+      eventCallback: function(event) {
+        if (event.name === 'checkout.completed') {
+          markUserAsPaid(event.data);
+          showPage('ai-report');
+          generateAIReport();
+        }
+      }
+    });
+    console.log('✅ Paddle initialized — sandbox mode');
+  } else {
+    console.error('❌ Paddle.js failed to load');
+  }
+
+  // Check Supabase auth session on load
+  db.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user) {
+      currentUser = session.user;
+      userEmail = session.user.email;
+      updateNavUI(session.user);
+    }
+  });
+});
 </script>
 </body>
 </html>
+
